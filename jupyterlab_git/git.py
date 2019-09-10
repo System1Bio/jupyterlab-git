@@ -11,7 +11,7 @@ import tornado
 
 
 # Git configuration options exposed through the REST API
-ALLOWED_OPTIONS = ['user.name', 'user.email']
+ALLOWED_OPTIONS = ['user.name', 'user.email', 'push.default', 'remote.pushdefault']
 # Regex pattern to capture (key, value) of Git configuration options.
 # See https://git-scm.com/docs/git-config#_syntax for git var syntax
 CONFIG_PATTERN = re.compile(r"(?:^|\n)([\w\-\.]+)\=")
@@ -25,7 +25,7 @@ async def execute(
     password: "Optional[str]" = None,
 ) -> "Tuple[int, str, str]":
     """Asynchronously execute a command.
-    
+
     Args:
         cmdline (List[str]): Command line to be executed
         cwd (Optional[str]): Current working directory
@@ -101,7 +101,6 @@ async def execute(
 
     return code, output, error
 
-
 class Git:
     """
     A single parent class containing all of the individual git methods in it.
@@ -111,11 +110,12 @@ class Git:
         self.contents_manager = contents_manager
         self.root_dir = os.path.expanduser(contents_manager.root_dir)
 
-    async def config(self, top_repo_path, **kwargs):
+    async def config(self, current_path, **kwargs):
         """Get or set Git options.
-        
+
         If no kwargs, all options are returned. Otherwise kwargs are set.
         """
+        top_repo_path = os.path.join(self.root_dir, current_path)
         response = {"code": 1}
 
         if len(kwargs):
@@ -154,12 +154,12 @@ class Git:
         There are two reserved "refs" for the base
             1. WORKING : Represents the Git working tree
             2. INDEX: Represents the Git staging area / index
-        
+
         Keyword Arguments:
             single_commit {string} -- The single commit ref
             base {string} -- the base Git ref
             remote {string} -- the remote Git ref
-        
+
         Returns:
             dict -- the response of format {
                 "code": int, # Command status code
