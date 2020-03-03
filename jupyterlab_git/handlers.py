@@ -401,9 +401,9 @@ class GitPushHandler(GitHandler):
         current_path = data["current_path"]
 
         current_local_branch = await self.git.get_current_branch(current_path)
-        current_upstream_branch = await self.git.get_upstream_branch(
-            current_path, current_local_branch
-        )
+        # current_upstream_branch = await self.git.get_upstream_branch(
+        #     current_path, current_local_branch
+        # )
 
         # Allow users to specify upstream through their configuration
         # https://git-scm.com/docs/git-config#Documentation/git-config.txt-pushdefault
@@ -411,23 +411,23 @@ class GitPushHandler(GitHandler):
         # default_remote = config_options.get('remote.pushdefault')
         # default_remote_branch = config_options.get('push.default') == 'current'
 
-        if current_upstream_branch and current_upstream_branch.strip():
-            upstream = current_upstream_branch.split("/")
-            if len(upstream) == 1:
-                # If upstream is a local branch
-                remote = "."
-                branch = ":".join(["HEAD", upstream[0]])
-            else:
-                # If upstream is a remote branch
-                remote = upstream[0]
-                branch = ":".join(["HEAD", upstream[1]])
-
-            response = await self.git.push(
-                remote, branch, current_path, data.get("auth", None)
-            )
-
-        else:
-            response = await self.git.push("origin", current_local_branch, current_path, data.get("auth", None))
+        # if current_upstream_branch and current_upstream_branch.strip():
+        #     upstream = current_upstream_branch.split("/")
+        #     if len(upstream) == 1:
+        #         # If upstream is a local branch
+        #         remote = "."
+        #         branch = ":".join(["HEAD", upstream[0]])
+        #     else:
+        #         # If upstream is a remote branch
+        #         remote = upstream[0]
+        #         branch = ":".join(["HEAD", upstream[1]])
+        #
+        #     response = await self.git.push(
+        #         remote, branch, current_path, data.get("auth", None)
+        #     )
+        #
+        # else:
+        response = await self.git.push("origin", current_local_branch, current_path, data.get("auth", None))
         # else:
         #     response = {
         #         "code": 128,
